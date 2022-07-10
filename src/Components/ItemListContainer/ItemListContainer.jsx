@@ -1,36 +1,35 @@
 import React from 'react'
 import { ItemList } from '../ItemList/ItemList'
-import { Products } from '../../Data/Products'
+import { useParams } from 'react-router-dom'
+import { getProducts } from '../../Data/Products'
+
 
 export const ItemListContainer = ( {greetings} ) => {
 
     const [listProducts,setListProducts]=React.useState([])
+    const [loading,setLoading]=React.useState(false)
+    const {categoryId}=useParams()
 
-    const itemLoading = new Promise ((resolve)=>{
-        setTimeout(()=>{
-            resolve(Products)
-        }, 2000)
-    })
-    itemLoading.then((result)=>{
-        console.log(result)
-    }).catch((err)=>{
-        console.log(err)
-    })
+   
 
     React.useEffect(()=>{
-        itemLoading
-        .then((res)=>setListProducts(res))
+        setLoading(true)
+        getProducts
+        .then((res)=>{
+            if (!categoryId){
+                setListProducts(res)
+            }else{
+                setListProducts(res.filter((prod)=>prod.category===categoryId))
+            }
+        })
         .catch((error)=>console.log(error))
-    },[])
+        .finally(()=>setLoading(false))
+    }, [])
 
   return (
     <div>
-
-        {greetings}
-
-        <ItemList listProducts={listProducts} />
-
-
+    
+    {loading ?<p> Cargando </p>: <ItemList listProducts={listProducts} />}   
 
     </div>
   )
